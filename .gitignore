@@ -1,0 +1,7 @@
+# File with Twitter API keys
+api_keys.py
+
+# Jupyter notebook files
+.ipynb_checkpoints/
+__pycache__/
+
