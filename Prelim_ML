@@ -1,0 +1,135 @@
+import numpy as np
+# Make the data set and labels
+# Create feature vector num. of samples x num. of features
+X= np.array([[-3,7],[1,5], [1,2], [-2,0], [2,3], [-4,0], [-1,1], [1,1], [-2,2], [2,7], [-4,1], [-2,7]])
+# Create feature vector num. of samples x 1 (bot or not)
+y = np.array([3, 3, 3, 3, 4, 3, 3, 4, 3, 4, 4, 4])
+
+# Split the data set for all classifiers first
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.33, random_state=42)
+
+from sklearn.naive_bayes import GaussianNB
+# Naive Bayes for tweets
+# Create a Gaussian Classifier
+clf_NB = GaussianNB()
+# Train the model using the training sets 
+clf_NB.fit(X_train, y_train)
+#Predict Output 
+predicted_NB = clf_NB.predict(X_test)
+
+# Decison tree for tweets
+# Think about using PCA to simplfy data and have better DT
+# To find best Tree depth
+from sklearn.model_selection import GridSearchCV
+from sklearn import tree
+# Should test depth from 3 to num. of features
+param_grid = {'max_depth': np.arange(3, len(X_train[1])), 'min_samples_split':(len(y_train)(np.arange(0,10,.5)/100))}
+clf_DT = GridSearchCV(tree.DecisionTreeClassifier(), param_grid)
+clf_DT = clf_DT.fit(X_train, y_train)
+#predicted_DT = clf_DT.predict_proba(xtest)[:, 1]
+predicted_DT = clf_DT.predict(X_test)
+best_set = clf_DT.best_params_
+
+'''
+# To visualize the tree
+from IPython.display import Image  
+dot_data = tree.export_graphviz(clf, out_file=None, 
+                     feature_names=iris.feature_names,  
+                     class_names=iris.target_names,  
+                     filled=True, rounded=True,  
+                     special_characters=True)  
+graph = pydotplus.graph_from_dot_data(dot_data)  
+Image(graph.create_png())  
+'''
+
+
+# Random Forests
+from sklearn.ensemble import RandomForestClassifier
+clf_RF = RandomForestClassifier()
+param_grid = {"max_depth": [np.arange(3, len(X_train[1])), None],
+              "min_samples_split": (len(y_train)(np.arange(0,11,.5)/100))
+              "bootstrap": [True, False],
+              "criterion": ["gini", "entropy"]}
+grid_search_RF = GridSearchCV(clf_RF, param_grid=param_grid)
+grid_search_RF.fit(X_train, y_train)
+predicted_RF = grid_search_RF.predict(X_test)
+best_set_RF = grid_search_RF.best_params_
+# Utility function to report best scores
+def report(results, n_top=3):
+    for i in range(1, n_top + 1):
+        candidates = np.flatnonzero(results['rank_test_score'] == i)
+        for candidate in candidates:
+            print("Model with rank: {0}".format(i))
+            print("Mean validation score: {0:.3f} (std: {1:.3f})".format(
+                  results['mean_test_score'][candidate],
+                  results['std_test_score'][candidate]))
+            print("Parameters: {0}".format(results['params'][candidate]))
+            print("")
+report(grid_search.cv_results_)
+
+# SVM
+# recommended to scale your data. For example, scale each attribute on the input vector X to [0,1] or [-1,+1], 
+# or standardize it to have mean 0 and variance 1
+from sklearn.svm import SVC
+# Set the parameters by cross-validation
+tuned_parameters = [{'kernel': ['rbf'], 'gamma': [1e-3, 1e-4], 'C': [1, 10, 100, 1000]},
+                    {'kernel': ['linear'], 'C': [1, 10, 100, 1000]},
+                    {'kernel': ['poly'], 'degree' : np.arange(1,6), 'gamma': [1e-3, 1e-4], 'C': [1, 10, 100, 1000]}
+                    {'kernel': ['sigmoid'], 'gamma': [1e-3, 1e-4], 'C': [1, 10, 100, 1000]}]
+clf_SVM = GridSearchCV(SVC(C=1), tuned_parameters, cv=5, scoring='%s_macro' % score)
+clf_SVM.fit(X_train, y_train)
+best_set_SVM = clf_SVM.best_params_
+predicted_SVM = clf_SVM.predict(X_test)
+
+# EnsembleSVM
+# Want to randomly sample data np.random.shuffle(x)
+# And then trian multiple SVM's 
+# Hard vote on a label
+from math import floor
+n_sets = 10
+n_size = floor(len(X_train)/n_sets)
+svm1 = SVC(best_set_SVM, random_state=1)
+svm2 = SVC(best_set_SVM, random_state=2)
+svm3 = SVC(best_set_SVM, random_state=3)
+svm4 = SVC(best_set_SVM, random_state=4)
+svm5 = SVC(best_set_SVM, random_state=5)
+svm6 = SVC(best_set_SVM, random_state=6)
+svm7 = SVC(best_set_SVM, random_state=7)
+svm8 = SVC(best_set_SVM, random_state=8)
+svm9 = SVC(best_set_SVM, random_state=9)
+svm10 = SVC(best_set_SVM, random_state=10)
+svm1.fit(X_train[0:n_size],y_train[0:n_size])
+svm2.fit(X_train[n_size:2*nsize],y_train[n_size:2*nsize])
+svm3.fit(X_train[2*n_size:3*nsize],y_train[2*n_size:3*nsize])
+svm4.fit(X_train[3*n_size:4*nsize],y_train[3*n_size:4*nsize])
+svm5.fit(X_train[4*n_size:5*nsize],y_train[4*n_size:5*nsize])
+svm6.fit(X_train[5*n_size:6*nsize],y_train[5*n_size:6*nsize])
+svm7.fit(X_train[6*n_size:7*nsize],y_train[6*n_size:7*nsize])
+svm8.fit(X_train[7*n_size:7*nsize],y_train[7*n_size:8*nsize])
+svm9.fit(X_train[8*n_size:9*nsize],y_train[8*n_size:9*nsize])
+svm10.fit(X_train[9*n_size:10*nsize],y_train[9*n_size:10*nsize])
+vt1 = svm1.predict(X_test)
+vt2 = svm2.predict(X_test)
+vt3 = svm3.predict(X_test)
+vt4 = svm4.predict(X_test)
+vt5 = svm5.predict(X_test)
+vt6 = svm6.predict(X_test)
+vt7 = svm7.predict(X_test)
+vt8 = svm8.predict(X_test)
+vt9 = svm9.predict(X_test)
+vt10 = svm10.predict(X_test)
+vt_count = np.array(vt1)+np.array(vt2)+np.array(vt3)+np.array(vt4)+np.array(vt5)+np.array(vt6)+np.array(vt7)+np.array(vt8)+np.array(vt9)+np.array(vt10)
+predict_ES = [for i in range(0,len(vt_count)) vt_count[i]>=5]
+
+
+# Hybrid Ensemble
+from sklearn.ensemble import VotingClassifier
+clf1 = RandomForestClassifier(best_set_RF, random_state=1)
+clf2 = SVC(best_set_SVM, random_state=1)
+eclf1 = VotingClassifier(estimators=[('RF', clf1), ('SVM', clf2)], voting='hard')
+# hard = majority vote, soft = argmax of the sums of the predicted probabilities
+eclf1 = eclf1.fit(X_train,y_train)
+predicted_ens = eclf1.predict(X_test)
+
+
