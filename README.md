@@ -1,5 +1,7 @@
 # ML-project
 
+Out Kaggle Team tag is "Jarvis (David&Mike)".
+
 ## Jupyter Notebooks description:
 
 * check_sumbissions.ipynb: used to compare two submission files generated with 'create_submission.ipynb' and see where are some classifiers performing better than other.
